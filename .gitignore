@@ -1,0 +1,47 @@
+# Gradle files
+.gradle/
+build/
+
+# Kotlin/KSP generated files
+**/build/
+**/generated/
+
+# IDE files
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/modules.xml
+.idea/navEditor.xml
+.idea/shelf
+*.iml
+*.ipr
+*.iws
+
+# Android Studio captures
+captures/
+
+# Local configuration (SDK paths, etc.)
+local.properties
+
+# Log files
+*.log
+
+# Signing files
+*.jks
+*.keystore
+*.p12
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# C++ / Native
+.externalNativeBuild/
+.cxx/
+
+# Secrets
+google-services.json
