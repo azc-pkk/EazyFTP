@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import uestc.b3dman.ftpclient.data.local.AppDatabase
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
+import uestc.b3dman.ftpclient.data.remote.FtpManager
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
 import javax.inject.Singleton
 
@@ -32,8 +33,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFtpRepository(dao: FtpAccountDao): FtpRepository {
-        // 现在 Repository 接收真实的 DAO 了
-        return FtpRepository(dao)
+    fun provideFtpManager(): FtpManager = FtpManager()
+
+    @Provides
+    @Singleton
+    fun provideFtpRepository(
+        dao: FtpAccountDao,
+        ftpManager: FtpManager
+    ): FtpRepository {
+        return FtpRepository(dao, ftpManager)
     }
 }

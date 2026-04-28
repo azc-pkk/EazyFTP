@@ -3,9 +3,11 @@ package uestc.b3dman.ftpclient.ui.screens.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
 import javax.inject.Inject
@@ -23,13 +25,15 @@ class LoginViewModel @Inject constructor(
     val isLoggingIn = _isLoggingIn.asStateFlow()
 
     // 执行登录
-    fun performLogin(account: FtpAccount, onSuccess: () -> Unit) {
-        viewModelScope.launch {
+    fun performLogin(account: FtpAccount, onSuccess: () -> Unit, onFailed: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLoggingIn.value = true
             val result = repository.login(account)
             _isLoggingIn.value = false
             if (result.isSuccess) {
-                onSuccess()
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
             }
         }
     }

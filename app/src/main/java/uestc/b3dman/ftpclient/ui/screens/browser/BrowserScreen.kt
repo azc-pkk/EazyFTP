@@ -29,8 +29,7 @@ fun BrowserScreen(
     onExit: () -> Unit,
     viewModel: BrowserViewModel = hiltViewModel()
 ) {
-    // --- 状态管理 ---
-    // 模拟路径栈，初始为 ["Root"]
+    // 路径
     val pathStack by viewModel.pathStack.collectAsState()
     val currentFolderName = pathStack.last()
 

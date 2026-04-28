@@ -1,8 +1,10 @@
 package uestc.b3dman.ftpclient.ui.screens.browser
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -38,7 +40,7 @@ class BrowserViewModel @Inject constructor(
 
     // 路径改变自动调用 getFiles
     init {
-        viewModelScope.launch {
+        viewModelScope.launch() {
             currentPathString.collect { path ->
                 getFiles()
             }
@@ -46,8 +48,9 @@ class BrowserViewModel @Inject constructor(
     }
 
     fun getFiles() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _files.value = repository.getFiles(currentPathString.value)
+            Log.d("BrowserViewModel", "getFiles: getting files for path ${currentPathString.value}, got ${_files.value.size} items")
         }
     }
 

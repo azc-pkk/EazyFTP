@@ -67,7 +67,13 @@ fun LoginScreen(
             // 将 accounts 按 lastLoginTime 排序，取最近登录的一个账号展示
             LoginContentWithHistory(
                 account = recentAccount,
-                onLoginSuccess = onNavigateToBrowser
+                onLogin = {
+                    viewModel.performLogin(
+                        recentAccount,
+                        onSuccess = { onNavigateToBrowser() },
+                        onFailed = { /* TODO: 登录失败处理 */ }
+                    )
+                },
             )
         }
 
@@ -199,7 +205,7 @@ fun LoginContentEmpty(onAddAccount: () -> Unit) {
 @Composable
 fun LoginContentWithHistory(
     account: FtpAccount,
-    onLoginSuccess: () -> Unit // 登录成功回调，传出密码或触发跳转
+    onLogin: () -> Unit
 ) {
     val userAlias = account.userName + '@' + account.alias
     val ipPort = account.ip + ':' + account.port.toString()
@@ -246,7 +252,9 @@ fun LoginContentWithHistory(
         if (!isPasswordMode) {
             // 模式 A: 初始状态 (一键登录)
             Button(
-                onClick = { onLoginSuccess() },
+                onClick = {
+                    onLogin()
+                },
                 modifier = Modifier
                     .width(240.dp)
                     .height(56.dp),
@@ -277,7 +285,7 @@ fun LoginContentWithHistory(
 
                 // 确定按钮
                 Button(
-                    onClick = { onLoginSuccess() },
+                    onClick = { onLogin() },
                     modifier = Modifier
                         .width(240.dp)
                         .height(56.dp),
