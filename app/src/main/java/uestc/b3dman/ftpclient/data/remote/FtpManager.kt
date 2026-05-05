@@ -4,6 +4,7 @@ import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
+import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -61,6 +62,16 @@ class FtpManager @Inject constructor() {
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         val digitGroups = (log10(size.toDouble()) / log10(1024.0)).toInt()
         return "%.1f %s".format(size / 1024.0.pow(digitGroups.toDouble()), units[digitGroups])
+    }
+
+    fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean {
+        if (outputStream == null) return false
+        return try {
+            ftpClient.retrieveFile(remotePath, outputStream)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
     fun disconnect() {

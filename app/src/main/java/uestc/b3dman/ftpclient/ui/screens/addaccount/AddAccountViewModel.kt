@@ -3,26 +3,22 @@ package uestc.b3dman.ftpclient.ui.screens.addaccount
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
-import uestc.b3dman.ftpclient.utils.FileUtils
 import androidx.core.net.toUri
 
 @HiltViewModel
 class AddAccountViewModel @Inject constructor(
     private val repository: FtpRepository,
-    @param:ApplicationContext private val context: Context
 ) : ViewModel() {
 
     var ipAndPort by mutableStateOf("")
@@ -52,10 +48,6 @@ class AddAccountViewModel @Inject constructor(
     fun addAccount(onSuccess: () -> Unit) {
         // TODO: 各字段校验
         viewModelScope.launch(Dispatchers.IO) {
-            val avatarPath = avatarUri?.let { uri ->
-                // 将 URI 转换为本地文件路径
-                FileUtils.saveUriToInternalStorage(context, uri)
-            }
             val newAccount = FtpAccount(
                 id = if (isEditMode) accountId else 0,
                 ip = ipAndPort.split(":", limit = 2)[0],
@@ -63,11 +55,10 @@ class AddAccountViewModel @Inject constructor(
                 userName = username.ifBlank { "anonymous" },
                 password = password,
                 alias = alias.ifBlank { ipAndPort.split(":", limit = 2)[0] },
-                avatarPath = avatarPath,
                 lastLoginTime = System.currentTimeMillis()
             )
             if (isEditMode) repository.updateAccount(newAccount)
-            else repository.saveAccount(newAccount)
+            else repository.saveAccountWithAvatar(newAccount, avatarUri)
             // 切换回主线程调用 onSuccess
             withContext(Dispatchers.Main) {
                 onSuccess()

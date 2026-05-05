@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +97,10 @@ fun BrowserScreen(
                     fileName = selectedFile?.name ?: "",
                     onActionClick = { action ->
                         showSheet = false
-                        // 这里处理具体逻辑，比如：println("Execute $action on ${selectedFile?.name}")
+                        viewModel.onAction(
+                            action,
+                            selectedFile
+                        )
                     }
                 )
             }

@@ -41,7 +41,7 @@ class BrowserViewModel @Inject constructor(
     // 路径改变自动调用 getFiles
     init {
         viewModelScope.launch {
-            currentPathString.collect { path ->
+            currentPathString.collect {
                 getFiles()
             }
         }
@@ -64,6 +64,27 @@ class BrowserViewModel @Inject constructor(
         } else {
             val currentStack = _pathStack.value
             _pathStack.value = currentStack.dropLast(1)
+        }
+    }
+
+    fun onAction(action: String, file: FtpFileItem?) {
+        when (action) {
+            "Download" -> {
+                if (file != null) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        repository.downloadFile(file.fullPath, file.name)
+                    }
+                }
+            }
+            "Rename" -> {
+                // TODO: 重命名文件
+            }
+            "Delete" -> {
+                // TODO: 删除文件
+            }
+            "Share" -> {
+                // TODO: 分享文件
+            }
         }
     }
 }

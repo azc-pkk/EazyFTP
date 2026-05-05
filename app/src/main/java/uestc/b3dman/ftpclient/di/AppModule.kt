@@ -9,6 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import uestc.b3dman.ftpclient.data.local.AppDatabase
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
+import uestc.b3dman.ftpclient.data.local.StorageManager
+import uestc.b3dman.ftpclient.data.local.StorageManagerImpl
 import uestc.b3dman.ftpclient.data.remote.FtpManager
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
 import javax.inject.Singleton
@@ -37,10 +39,15 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideStorageManager(@ApplicationContext context: Context): StorageManager = StorageManagerImpl(context)
+
+    @Provides
+    @Singleton
     fun provideFtpRepository(
         dao: FtpAccountDao,
-        ftpManager: FtpManager
+        ftpManager: FtpManager,
+        storage: StorageManager
     ): FtpRepository {
-        return FtpRepository(dao, ftpManager)
+        return FtpRepository(dao, ftpManager, storage)
     }
 }
