@@ -1,6 +1,5 @@
 package uestc.b3dman.ftpclient.ui.screens.addaccount
 
-import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +56,7 @@ class AddAccountViewModel @Inject constructor(
                 alias = alias.ifBlank { ipAndPort.split(":", limit = 2)[0] },
                 lastLoginTime = System.currentTimeMillis()
             )
-            if (isEditMode) repository.updateAccount(newAccount)
+            if (isEditMode) repository.updateAccountWithAvatar(newAccount, avatarUri)
             else repository.saveAccountWithAvatar(newAccount, avatarUri)
             // 切换回主线程调用 onSuccess
             withContext(Dispatchers.Main) {

@@ -33,8 +33,9 @@ class FtpRepository @Inject constructor(
         accountDao.deleteAccount(account)
     }
 
-    suspend fun updateAccount(account: FtpAccount) {
-        accountDao.updateAccount(account)
+    suspend fun updateAccountWithAvatar(account: FtpAccount, uri: Uri?) {
+        val avatarPath = uri?.let { storage.saveAvatar(it) }
+        accountDao.updateAccount(account.copy(avatarPath = avatarPath))
     }
 
     suspend fun getAccountById(id: Int): FtpAccount? {

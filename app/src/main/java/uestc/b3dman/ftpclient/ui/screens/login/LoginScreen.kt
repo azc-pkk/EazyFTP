@@ -16,15 +16,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil.compose.AsyncImage
 import uestc.b3dman.ftpclient.data.model.FtpAccount
-
-// 定义主题蓝色
-val FtpBlue = Color(56, 182, 255)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +31,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
+    // TODO: 正在登录提示
     val isLoggingIn by viewModel.isLoggingIn.collectAsState()
 
     // 控制底部弹窗显示
@@ -99,6 +96,7 @@ fun LoginScreen(
             }
         }
 
+        // 切换账号
         if (showSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
@@ -343,27 +341,4 @@ fun BottomIconAction(label: String, onClick: () -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = label, fontSize = 14.sp)
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun PasswordInputField(value: String, onValueChange: (String) -> Unit, placeholder: String) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = Color.Gray) },
-        modifier = Modifier
-            .width(280.dp) // 宽度稍微宽于按钮
-            .height(60.dp),
-        visualTransformation = PasswordVisualTransformation(), // 关键：将文本转为点点
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFE0E0E0),
-            unfocusedContainerColor = Color(0xFFE0E0E0),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = Color.Black
-        ),
-        shape = RoundedCornerShape(8.dp),
-        singleLine = true
-    )
 }

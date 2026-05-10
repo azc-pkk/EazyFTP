@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
+import uestc.b3dman.ftpclient.utils.Formatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +24,7 @@ class BrowserViewModel @Inject constructor(
 
     private val _pathStack = MutableStateFlow(listOf("/"))
     val pathStack = _pathStack.asStateFlow()
-
+// FIXME
     val currentPathString: StateFlow<String> = _pathStack
         .map { pathList ->
             val filtered = pathList.filter { it != "/" }
@@ -36,7 +37,21 @@ class BrowserViewModel @Inject constructor(
         )
 
     private val _files = MutableStateFlow<List<FtpFileItem>>(emptyList())
-    val files = _files.asStateFlow()
+    val files: StateFlow<List<FtpFileUiState>> = _files.map { list ->
+        list.map {
+            FtpFileUiState(
+                name = it.name,
+                isFolder = it.isFolder,
+                lastUpdateTime = Formatter.formatDate(it.lastUpdateTime),
+                size = Formatter.formatSize(it.size),
+                fullPath = it.fullPath
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     // 路径改变自动调用 getFiles
     init {
@@ -67,7 +82,7 @@ class BrowserViewModel @Inject constructor(
         }
     }
 
-    fun onAction(action: String, file: FtpFileItem?) {
+    fun onAction(action: String, file: FtpFileUiState?) {
         when (action) {
             "Download" -> {
                 if (file != null) {

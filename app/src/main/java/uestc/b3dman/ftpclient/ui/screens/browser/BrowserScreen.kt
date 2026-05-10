@@ -20,7 +20,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import uestc.b3dman.ftpclient.data.model.FtpFileItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +35,7 @@ fun BrowserScreen(
 
     // 控制底部菜单显示
     var showSheet by remember { mutableStateOf(false) }
-    var selectedFile by remember { mutableStateOf<FtpFileItem?>(null) }
+    var selectedFile by remember { mutableStateOf<FtpFileUiState?>(null) }
     val sheetState = rememberModalBottomSheetState()
 
     // 处理系统返回键
@@ -148,7 +147,7 @@ fun ActionItem(icon: ImageVector, label: String, color: Color = Color.Black, onC
 
 // 修改后的 FileListItem 接收点击回调
 @Composable
-fun FileListItem(file: FtpFileItem, onClick: () -> Unit) {
+fun FileListItem(file: FtpFileUiState, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,7 +166,7 @@ fun FileListItem(file: FtpFileItem, onClick: () -> Unit) {
             Text(text = file.name, fontSize = 16.sp, fontWeight = FontWeight.Medium)
             Row {
                 Text(text = file.lastUpdateTime, fontSize = 12.sp, color = Color.Gray)
-                if (file.size != null) {
+                if (!file.isFolder) {
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(text = file.size, fontSize = 12.sp, color = Color.Gray)
                 }

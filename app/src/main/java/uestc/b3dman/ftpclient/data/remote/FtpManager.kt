@@ -5,12 +5,8 @@ import org.apache.commons.net.ftp.FTPFile
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import java.io.OutputStream
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.log10
-import kotlin.math.pow
 
 @Singleton
 class FtpManager @Inject constructor() {
@@ -40,14 +36,13 @@ class FtpManager @Inject constructor() {
     fun listFiles(path: String): List<FtpFileItem> {
         return try {
             val files: Array<FTPFile> = ftpClient.listFiles(path)
-            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
             files.map { file ->
                 FtpFileItem(
                     name = file.name,
                     isFolder = file.isDirectory,
-                    lastUpdateTime = sdf.format(file.timestamp.time),
-                    size = if (file.isFile) formatSize(file.size) else null,
+                    lastUpdateTime = file.timestamp.time.time,
+                    size = file.size,
                     fullPath = if (path.endsWith("/")) path + file.name else "$path/${file.name}"
                 )
             }.sortedWith(compareByDescending<FtpFileItem> { it.isFolder }.thenBy { it.name })
@@ -55,13 +50,6 @@ class FtpManager @Inject constructor() {
             e.printStackTrace()
             emptyList()
         }
-    }
-
-    private fun formatSize(size: Long): String {
-        if (size <= 0) return "0 B"
-        val units = arrayOf("B", "KB", "MB", "GB", "TB")
-        val digitGroups = (log10(size.toDouble()) / log10(1024.0)).toInt()
-        return "%.1f %s".format(size / 1024.0.pow(digitGroups.toDouble()), units[digitGroups])
     }
 
     fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean {

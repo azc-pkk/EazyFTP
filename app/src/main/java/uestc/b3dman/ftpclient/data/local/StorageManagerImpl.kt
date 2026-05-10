@@ -13,6 +13,7 @@ import javax.inject.Inject
 class StorageManagerImpl @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : StorageManager {
+    // FIXME: 头像相同会多次保存。
     override suspend fun saveAvatar(uri: Uri): String? {
         return try {
             val contentResolver = context.contentResolver
