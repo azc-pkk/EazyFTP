@@ -24,7 +24,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowserScreen(
+    accountId: Int,
     onExit: () -> Unit,
+    onNavigateToHistory: (Int) -> Unit,
     viewModel: BrowserViewModel = hiltViewModel()
 ) {
     // 路径
@@ -55,7 +57,8 @@ fun BrowserScreen(
                     }
                 },
                 actions = {
-                    // TODO: 这里的搜索和更多功能暂时不实现，点击后可以弹出提示或者直接无反应
+                    IconButton(onClick = { onNavigateToHistory(accountId) }) { Icon(Icons.Default.Download, "Download History") }
+                    // TODO: 搜索和设置
                     IconButton(onClick = { }) { Icon(Icons.Default.Search, "Search") }
                     IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, "More") }
                 }

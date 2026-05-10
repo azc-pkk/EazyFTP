@@ -6,6 +6,7 @@ import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import kotlinx.coroutines.flow.Flow
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
+import uestc.b3dman.ftpclient.data.model.DownloadHistoryEntry
 import uestc.b3dman.ftpclient.data.remote.FtpManager
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,5 +58,10 @@ class FtpRepository @Inject constructor(
 
     suspend fun logout() {
         ftpManager.disconnect()
+    }
+
+    //
+    fun getDownloadHistory(accountId: Int): Flow<List<DownloadHistoryEntry>> {
+        TODO()
     }
 }

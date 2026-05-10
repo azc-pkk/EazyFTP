@@ -25,7 +25,7 @@ import uestc.b3dman.ftpclient.data.model.FtpAccount
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onNavigateToBrowser: () -> Unit,
+    onNavigateToBrowser: (Int) -> Unit,
     onNavigateToAddAccount: () -> Unit,
     onNavigateToEditAccount: (Int) -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
@@ -74,7 +74,7 @@ fun LoginScreen(
                 onLogin = {
                     viewModel.performLogin(
                         recentAccount,
-                        onSuccess = { onNavigateToBrowser() },
+                        onSuccess = { onNavigateToBrowser(recentAccount.id) },
                         onFailed = { loginFiled = true }
                     )
                 },

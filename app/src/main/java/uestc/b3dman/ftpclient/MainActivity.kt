@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import dagger.hilt.android.AndroidEntryPoint
 import uestc.b3dman.ftpclient.ui.screens.addaccount.AddAccountScreen
 import uestc.b3dman.ftpclient.ui.screens.browser.BrowserScreen
+import uestc.b3dman.ftpclient.ui.screens.history.HistoryScreen
 import uestc.b3dman.ftpclient.ui.screens.login.LoginScreen
 
 
@@ -47,7 +48,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    // TODO: 可能要添加更多的屏幕
     NavHost(
         navController = navController,
         startDestination = "login",
@@ -58,8 +58,8 @@ fun AppNavigation() {
     ) {
         composable("login") {
             LoginScreen(
-                onNavigateToBrowser = {
-                    navController.navigate("browser")
+                onNavigateToBrowser = { accountId ->
+                    navController.navigate("browser?accountId=$accountId")
                 },
                 onNavigateToAddAccount = {
                     navController.navigate("add_account")
@@ -68,7 +68,7 @@ fun AppNavigation() {
                     navController.navigate("add_account?accountId=$accountId")
                 }
             )
-       }
+        }
         composable(
             "add_account?accountId={accountId}",
             arguments = listOf(
@@ -84,10 +84,38 @@ fun AppNavigation() {
                 onBack = { navController.popBackStack() }
             )
         }
-        composable("browser") {
-            BrowserScreen(onExit = {
-                navController.popBackStack()
-            })
+
+        composable(
+            "browser?accountId={accountId}",
+            arguments = listOf(
+                navArgument("accountId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val accountId = backStackEntry.arguments?.getInt("accountId") ?: -1
+            BrowserScreen(
+                accountId = accountId,
+                onExit = { navController.popBackStack() },
+                onNavigateToHistory = { accountId ->
+                    navController.navigate("history?accountId=$accountId")
+                }
+            )
+        }
+
+        composable(
+            "history?accountId={accountId}",
+            arguments = listOf(
+                navArgument("accountId") {
+                    type = NavType.IntType
+                }
+            )
+        ) { backStackEntry ->
+            val accountId = backStackEntry.arguments?.getInt("accountId") ?: -1
+            HistoryScreen(
+                accountId = accountId,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
