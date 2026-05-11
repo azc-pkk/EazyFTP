@@ -40,6 +40,10 @@ fun BrowserScreen(
     var selectedFile by remember { mutableStateOf<FtpFileUiState?>(null) }
     val sheetState = rememberModalBottomSheetState()
 
+    LaunchedEffect(accountId) {
+        viewModel.accountId = accountId
+    }
+
     // 处理系统返回键
     BackHandler {
         viewModel.onBack(onExit)

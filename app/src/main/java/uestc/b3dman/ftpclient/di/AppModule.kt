@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import uestc.b3dman.ftpclient.data.local.AppDatabase
+import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
 import uestc.b3dman.ftpclient.data.local.StorageManagerImpl
@@ -34,6 +35,11 @@ object AppModule {
     }
 
     @Provides
+    fun provideDownloadHistoryDao(db: AppDatabase): DownloadHistoryDao {
+        return db.downloadHistoryDao()
+    }
+
+    @Provides
     @Singleton
     fun provideFtpManager(): FtpManager = FtpManager()
 
@@ -44,10 +50,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFtpRepository(
-        dao: FtpAccountDao,
+        accountDao: FtpAccountDao,
+        historyDao: DownloadHistoryDao,
         ftpManager: FtpManager,
         storage: StorageManager
     ): FtpRepository {
-        return FtpRepository(dao, ftpManager, storage)
+        return FtpRepository(accountDao, historyDao, ftpManager, storage)
     }
 }

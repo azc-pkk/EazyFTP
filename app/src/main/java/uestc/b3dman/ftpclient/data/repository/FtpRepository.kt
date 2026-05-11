@@ -4,16 +4,19 @@ import android.net.Uri
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import kotlinx.coroutines.flow.Flow
+import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
 import uestc.b3dman.ftpclient.data.model.DownloadHistoryEntry
 import uestc.b3dman.ftpclient.data.remote.FtpManager
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FtpRepository @Inject constructor(
     private val accountDao: FtpAccountDao,
+    private val historyDao: DownloadHistoryDao,
     private val ftpManager: FtpManager,
     private val storage: StorageManager,
 ) {
@@ -52,8 +55,18 @@ class FtpRepository @Inject constructor(
         return ftpManager.listFiles(path)
     }
 
-    suspend fun downloadFile(remotePath: String, fileName: String): Result<Boolean> {
-        return if (ftpManager.downloadFile(remotePath, storage.getDownloadOutputStream(fileName))) Result.success(true) else Result.failure(Exception("Download failed"))
+    suspend fun downloadFile(accountId:Int, file: FtpFileItem): Result<Boolean> {
+        val result = ftpManager.downloadFile(file.fullPath, storage.getDownloadOutputStream(file.name))
+        // TODO: 根据结果修改下载历史记录（成功/失败）
+        historyDao.insert(DownloadHistoryEntry(
+            fileName = file.name,
+            remotePath = file.fullPath,
+            localPath = storage.downloadDir + File.separator + file.name,
+            fileSize = file.size,
+            downloadTime = System.currentTimeMillis(),
+            accountId = accountId
+        ))
+        return if(result) Result.success(true) else Result.failure(Exception("Download failed"))
     }
 
     suspend fun logout() {
@@ -62,6 +75,6 @@ class FtpRepository @Inject constructor(
 
     //
     fun getDownloadHistory(accountId: Int): Flow<List<DownloadHistoryEntry>> {
-        TODO()
+        return historyDao.getHistoryForAccount(accountId)
     }
 }

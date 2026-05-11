@@ -13,6 +13,17 @@ import javax.inject.Inject
 class StorageManagerImpl @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : StorageManager {
+    override var downloadDir: String = ""
+
+    init {
+        // 初始化下载目录
+        val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FTPClient")
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        this.downloadDir = dir.absolutePath
+    }
+
     // FIXME: 头像相同会多次保存。
     override suspend fun saveAvatar(uri: Uri): String? {
         return try {
@@ -39,10 +50,6 @@ class StorageManagerImpl @Inject constructor(
 
     override fun getDownloadOutputStream(fileName: String): OutputStream? {
        return try {
-            val downloadDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FTPClient")
-            if (!downloadDir.exists()) {
-                downloadDir.mkdirs()
-            }
             val file = File(downloadDir, fileName)
             file.outputStream()
         } catch (e: Exception) {

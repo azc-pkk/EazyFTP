@@ -11,7 +11,7 @@ import javax.inject.Singleton
 @Singleton
 class FtpManager @Inject constructor() {
     private val ftpClient = FTPClient()
-
+// TODO: 重构，去掉 FtpAccount 和 FTPClient 的依赖
     fun connect(account: FtpAccount): Boolean {
         return try {
             if (ftpClient.isConnected) {

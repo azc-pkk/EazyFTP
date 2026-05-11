@@ -14,13 +14,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
-import uestc.b3dman.ftpclient.utils.Formatter
 import javax.inject.Inject
 
 @HiltViewModel
 class BrowserViewModel @Inject constructor(
     private val repository: FtpRepository
 ) : ViewModel() {
+
+    var accountId: Int = -1
 
     private val _pathStack = MutableStateFlow(listOf("/"))
     val pathStack = _pathStack.asStateFlow()
@@ -38,15 +39,7 @@ class BrowserViewModel @Inject constructor(
 
     private val _files = MutableStateFlow<List<FtpFileItem>>(emptyList())
     val files: StateFlow<List<FtpFileUiState>> = _files.map { list ->
-        list.map {
-            FtpFileUiState(
-                name = it.name,
-                isFolder = it.isFolder,
-                lastUpdateTime = Formatter.formatDate(it.lastUpdateTime),
-                size = Formatter.formatSize(it.size),
-                fullPath = it.fullPath
-            )
-        }
+        list.map { it.toUiState() }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -83,12 +76,11 @@ class BrowserViewModel @Inject constructor(
     }
 
     fun onAction(action: String, file: FtpFileUiState?) {
+        val rawFileItem = _files.value.find { it.name == file?.name } ?: return
         when (action) {
             "Download" -> {
-                if (file != null) {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        repository.downloadFile(file.fullPath, file.name)
-                    }
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.downloadFile(accountId, rawFileItem)
                 }
             }
             "Rename" -> {
