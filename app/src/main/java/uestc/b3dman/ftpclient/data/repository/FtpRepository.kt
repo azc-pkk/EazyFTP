@@ -48,7 +48,8 @@ class FtpRepository @Inject constructor(
 
     // --- 远程 FTP 操作 ---
     suspend fun login(account: FtpAccount): Result<Boolean> {
-        return if (ftpManager.connect(account)) Result.success(true) else Result.failure(Exception("Login failed"))
+        val result = ftpManager.connect(account.ip, account.port, account.userName, account.password)
+        return if (result) Result.success(true) else Result.failure(Exception("Login failed"))
     }
 
     suspend fun getFiles(path: String): List<FtpFileItem> {

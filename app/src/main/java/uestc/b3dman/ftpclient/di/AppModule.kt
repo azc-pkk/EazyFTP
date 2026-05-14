@@ -12,6 +12,7 @@ import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
 import uestc.b3dman.ftpclient.data.local.StorageManagerImpl
+import uestc.b3dman.ftpclient.data.remote.ApacheFtpManager
 import uestc.b3dman.ftpclient.data.remote.FtpManager
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
 import javax.inject.Singleton
@@ -41,7 +42,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFtpManager(): FtpManager = FtpManager()
+    fun provideFtpManager(): FtpManager = ApacheFtpManager()
 
     @Provides
     @Singleton
