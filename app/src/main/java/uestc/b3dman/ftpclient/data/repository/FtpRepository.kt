@@ -1,9 +1,11 @@
 package uestc.b3dman.ftpclient.data.repository
 
 import android.net.Uri
+import kotlinx.coroutines.Dispatchers
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.model.FtpFileItem
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
@@ -23,10 +25,11 @@ class FtpRepository @Inject constructor(
     // --- 本地数据库操作 ---
     val savedAccounts: Flow<List<FtpAccount>> = accountDao.getAllAccounts()
 
-    suspend fun saveAccountWithAvatar(account: FtpAccount, uri: Uri?) {
-        val avatarPath = uri?.let { storage.saveAvatar(it) }
-        accountDao.insertAccount(account.copy(avatarPath = avatarPath))
-    }
+    suspend fun saveAccountWithAvatar(account: FtpAccount, uri: Uri?) =
+        withContext(Dispatchers.IO) {
+            val avatarPath = uri?.let { storage.saveAvatar(it) }
+            accountDao.insertAccount(account.copy(avatarPath = avatarPath))
+        }
 
     suspend fun updateLastLoginTime(account: FtpAccount) {
         val updatedAccount = account.copy(lastLoginTime = System.currentTimeMillis())
@@ -37,22 +40,23 @@ class FtpRepository @Inject constructor(
         accountDao.deleteAccount(account)
     }
 
-    suspend fun updateAccountWithAvatar(account: FtpAccount, uri: Uri?) {
-        val avatarPath = uri?.let { storage.saveAvatar(it) }
-        accountDao.updateAccount(account.copy(avatarPath = avatarPath))
-    }
+    suspend fun updateAccountWithAvatar(account: FtpAccount, uri: Uri?) =
+        withContext(Dispatchers.IO) {
+            val avatarPath = uri?.let { storage.saveAvatar(it) }
+            accountDao.updateAccount(account.copy(avatarPath = avatarPath))
+        }
 
     suspend fun getAccountById(id: Int): FtpAccount? {
         return accountDao.getAccountById(id)
     }
 
     // --- 远程 FTP 操作 ---
-    fun login(account: FtpAccount): Result<Boolean> {
+    suspend fun login(account: FtpAccount): Result<Boolean> {
         val result = ftpManager.connect(account.ip, account.port, account.userName, account.password)
         return if (result) Result.success(true) else Result.failure(Exception("Login failed"))
     }
 
-    fun getFiles(path: String): List<FtpFileItem> {
+    suspend fun getFiles(path: String): List<FtpFileItem> {
         return ftpManager.listFiles(path)
     }
 
@@ -81,7 +85,6 @@ class FtpRepository @Inject constructor(
         ftpManager.disconnect()
     }
 
-    //
     fun getDownloadHistory(accountId: Int): Flow<List<DownloadHistoryEntry>> {
         return historyDao.getHistoryForAccount(accountId)
     }

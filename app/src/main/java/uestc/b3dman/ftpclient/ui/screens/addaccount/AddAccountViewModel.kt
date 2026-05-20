@@ -8,9 +8,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
 import jakarta.inject.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
 import androidx.core.net.toUri
@@ -46,7 +44,7 @@ class AddAccountViewModel @Inject constructor(
 
     fun addAccount(onSuccess: () -> Unit) {
         // TODO: 各字段校验
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val newAccount = FtpAccount(
                 id = if (isEditMode) accountId else 0,
                 ip = ipAndPort.split(":", limit = 2)[0],
@@ -58,10 +56,7 @@ class AddAccountViewModel @Inject constructor(
             )
             if (isEditMode) repository.updateAccountWithAvatar(newAccount, avatarUri)
             else repository.saveAccountWithAvatar(newAccount, avatarUri)
-            // 切换回主线程调用 onSuccess
-            withContext(Dispatchers.Main) {
-                onSuccess()
-            }
+            onSuccess()
         }
     }
 }

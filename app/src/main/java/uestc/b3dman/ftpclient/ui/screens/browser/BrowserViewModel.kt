@@ -57,14 +57,14 @@ class BrowserViewModel @Inject constructor(
     }
 
     fun getFiles() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             _files.value = repository.getFiles(currentPathString.value)
             Log.d("BrowserViewModel", "getFiles: getting files for path ${currentPathString.value}, got ${_files.value.size} items")
         }
     }
 
     fun uploadFile(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.uploadFile(currentPathString.value, uri)
         }
     }

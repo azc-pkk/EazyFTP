@@ -5,10 +5,10 @@ import java.io.InputStream
 import java.io.OutputStream
 
 interface FtpManager {
-    fun connect(ip: String, port: Int, username: String, password: String): Boolean
-    fun listFiles(path: String): List<FtpFileItem>
+    suspend fun connect(ip: String, port: Int, username: String, password: String): Boolean
+    suspend fun listFiles(path: String): List<FtpFileItem>
     // TODO: 手动处理流拷贝，显示下载进度
-    fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean
-    fun uploadFile(remotePath: String, inputStream: InputStream?): Boolean
+    suspend fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean
+    suspend fun uploadFile(remotePath: String, inputStream: InputStream?): Boolean
     fun disconnect()
 }
