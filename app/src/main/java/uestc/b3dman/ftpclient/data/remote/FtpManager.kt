@@ -10,5 +10,5 @@ interface FtpManager {
     // TODO: 手动处理流拷贝，显示下载进度
     suspend fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean
     suspend fun uploadFile(remotePath: String, inputStream: InputStream?): Boolean
-    fun disconnect()
+    suspend fun disconnect()
 }

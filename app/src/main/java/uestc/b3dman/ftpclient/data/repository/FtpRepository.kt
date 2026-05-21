@@ -81,7 +81,7 @@ class FtpRepository @Inject constructor(
         return if(result) Result.success(true) else Result.failure(Exception("Upload failed"))
     }
 
-    fun logout() {
+    suspend fun logout() {
         ftpManager.disconnect()
     }
 

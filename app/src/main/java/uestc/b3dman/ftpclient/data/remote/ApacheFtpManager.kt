@@ -80,7 +80,7 @@ class ApacheFtpManager @Inject constructor() : FtpManager{
             }
         }
 
-    override fun disconnect() {
+    override suspend fun disconnect() {
         if (ftpClient.isConnected) ftpClient.disconnect()
     }
 }

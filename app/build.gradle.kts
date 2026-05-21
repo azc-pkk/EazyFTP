@@ -49,6 +49,10 @@ kotlin {
 }
 
 dependencies {
+//    desugar
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+//    custom ftp module
+    implementation(project(":ftp-core"))
 //    Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
