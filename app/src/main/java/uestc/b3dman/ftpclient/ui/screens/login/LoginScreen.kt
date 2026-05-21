@@ -8,12 +8,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PersonAddAlt
+import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material.icons.filled.SwitchAccount
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -91,8 +95,8 @@ fun LoginScreen(
                     .padding(bottom = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                BottomIconAction(label = "添加账号", onClick = onNavigateToAddAccount)
-                BottomIconAction(label = "切换账号", onClick = { showSheet = true })
+                BottomIconAction(label = "添加账号", icon = Icons.Default.PersonAddAlt1, onClick = onNavigateToAddAccount)
+                BottomIconAction(label = "切换账号", icon = Icons.Default.SwitchAccount, onClick = { showSheet = true })
             }
         }
 
@@ -219,7 +223,6 @@ fun AccountItem(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // TODO:显示默认头像
                 Text(account.alias.take(1))
             }
         }
@@ -245,13 +248,13 @@ fun AccountItem(
 @Composable
 fun LoginContentEmpty(onAddAccount: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // TODO: 这里的黑色圆块只是占位，实际应该替换成一个更有设计感的图标或者插图
-        // 大圆黑块
         Box(
             modifier = Modifier
                 .size(160.dp)
-                .background(Color.Black, CircleShape)
-        )
+                .background(Color(0xFFD1E2F5), CircleShape)
+        ) {
+            Icon(Icons.Default.PersonAddAlt, contentDescription = null, tint = Color(0xFF38B4FF), modifier = Modifier.align(Alignment.Center).size(64.dp))
+        }
 
         Spacer(modifier = Modifier.height(60.dp))
 
@@ -328,7 +331,7 @@ fun LoginContentWithHistory(
 }
 
 @Composable
-fun BottomIconAction(label: String, onClick: () -> Unit) {
+fun BottomIconAction(label: String, icon: ImageVector, onClick: () -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.clickable { onClick() }
@@ -336,8 +339,10 @@ fun BottomIconAction(label: String, onClick: () -> Unit) {
         Box(
             modifier = Modifier
                 .size(60.dp)
-                .background(Color.Black, CircleShape)
-        )
+                .background(Color(0xFFD1E2F5), CircleShape)
+        ) {
+            Icon(icon, contentDescription = null, tint = Color(0xFF38B4FF), modifier = Modifier.align(Alignment.Center))
+        }
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = label, fontSize = 14.sp)
     }

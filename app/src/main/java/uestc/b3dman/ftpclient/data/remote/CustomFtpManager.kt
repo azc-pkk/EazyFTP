@@ -6,6 +6,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.comparisons.compareByDescending
+import kotlin.comparisons.thenBy
 
 @Singleton
 class CustomFtpManager @Inject constructor(): FtpManager {
@@ -30,7 +32,7 @@ class CustomFtpManager @Inject constructor(): FtpManager {
                 size = file.size,
                 fullPath = file.fullPath
             )
-        }
+        }.sortedWith (compareByDescending<FtpFileItem> { it.isFolder }.thenBy { it.name })
     }
 
     override suspend fun downloadFile(
