@@ -163,11 +163,25 @@ class FtpClient {
         val values = match.destructured.toList().map { it.toInt() }
 
         val ip = values.subList(0, 4).joinToString(".")
-        val port = values[4] *256 + values[5]
+        val port = values[4] * 256 + values[5]
 
         logger.info("Opening data connection to $ip:$port")
 
         return@withContext aSocket(selectorManager).tcp().connect(ip, port)
+    }
+
+    suspend fun rename(fromPath: String, toPath: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isConnected) return@withContext false
+
+        sendCmd("RNFR $fromPath")
+        var response = receiveResponse()
+        logger.info(response.message)
+        if (response.code != 350) return@withContext false
+
+        sendCmd("RNTO $toPath")
+        response = receiveResponse()
+        logger.info(response.message)
+        return@withContext response.code == 250
     }
 
     suspend fun disconnect() = withContext(Dispatchers.IO) {

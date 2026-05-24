@@ -82,6 +82,9 @@ class BrowserViewModel @Inject constructor(
         }
     }
 
+    private val _renameTargetFile = MutableStateFlow<FtpFileItem?>(null)
+    val renameTargetFile: StateFlow<FtpFileItem?> = _renameTargetFile.asStateFlow()
+
     fun onAction(action: String, file: FtpFileUiState?) {
         val rawFileItem = _files.value.find { it.name == file?.name } ?: return
         when (action) {
@@ -91,7 +94,7 @@ class BrowserViewModel @Inject constructor(
                 }
             }
             "Rename" -> {
-                // TODO: 重命名文件
+                _renameTargetFile.value = rawFileItem
             }
             "Delete" -> {
                 // TODO: 删除文件
@@ -99,6 +102,22 @@ class BrowserViewModel @Inject constructor(
             "Share" -> {
                 // TODO: 分享文件
             }
+        }
+    }
+
+    fun onRenameDismiss() {
+        _renameTargetFile.value = null
+    }
+
+    fun onRenameConfirm(newName: String) {
+        val file = _renameTargetFile.value ?: return
+        _renameTargetFile.value = null
+        viewModelScope.launch(Dispatchers.IO) {
+            val parentPath = currentPathString.value
+            val fromPath = file.fullPath
+            val toPath = if (parentPath.endsWith("/")) parentPath + newName else "$parentPath/$newName"
+            repository.renameFile(fromPath, toPath)
+            getFiles()
         }
     }
 }

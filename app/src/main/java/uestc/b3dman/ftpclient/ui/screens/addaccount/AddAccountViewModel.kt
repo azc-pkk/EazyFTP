@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.repository.FtpRepository

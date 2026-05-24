@@ -81,6 +81,11 @@ class FtpRepository @Inject constructor(
         return if(result) Result.success(true) else Result.failure(Exception("Upload failed"))
     }
 
+    suspend fun renameFile(fromPath: String, toPath: String): Result<Boolean> {
+        val result = ftpManager.rename(fromPath, toPath)
+        return if (result) Result.success(true) else Result.failure(Exception("Rename failed"))
+    }
+
     suspend fun logout() {
         ftpManager.disconnect()
     }

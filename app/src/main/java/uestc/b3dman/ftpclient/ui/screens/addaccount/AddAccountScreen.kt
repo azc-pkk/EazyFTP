@@ -1,6 +1,5 @@
 package uestc.b3dman.ftpclient.ui.screens.addaccount
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import uestc.b3dman.ftpclient.data.model.FtpAccount
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

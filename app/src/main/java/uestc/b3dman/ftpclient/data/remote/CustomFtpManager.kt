@@ -35,6 +35,10 @@ class CustomFtpManager @Inject constructor(): FtpManager {
         }.sortedWith (compareByDescending<FtpFileItem> { it.isFolder }.thenBy { it.name })
     }
 
+    override suspend fun rename(fromPath: String, toPath: String): Boolean {
+        return ftpClient.rename(fromPath, toPath)
+    }
+
     override suspend fun downloadFile(
         remotePath: String,
         outputStream: OutputStream?
