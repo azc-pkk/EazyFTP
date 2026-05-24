@@ -86,6 +86,11 @@ class FtpRepository @Inject constructor(
         return if (result) Result.success(true) else Result.failure(Exception("Rename failed"))
     }
 
+    suspend fun createFolder(path: String): Result<Boolean> {
+        val result = ftpManager.mkdir(path)
+        return if (result) Result.success(true) else Result.failure(Exception("Create folder failed"))
+    }
+
     suspend fun logout() {
         ftpManager.disconnect()
     }

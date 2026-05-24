@@ -77,7 +77,8 @@ fun BrowserScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize().background(Color.White)) {
             ControlBar(
-                onUploadClick = { pickFileLauncher.launch("*/*") }
+                onUploadClick = { pickFileLauncher.launch("*/*") },
+                onCreateFolderClick = { viewModel.onCreateFolderClick() }
             )
 
             LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -123,7 +124,46 @@ fun BrowserScreen(
                 onDismiss = { viewModel.onRenameDismiss() }
             )
         }
+
+        val showCreateFolder by viewModel.showCreateFolderDialog.collectAsState()
+        if (showCreateFolder) {
+            CreateFolderDialog(
+                onConfirm = { name -> viewModel.onCreateFolderConfirm(name) },
+                onDismiss = { viewModel.onCreateFolderDismiss() }
+            )
+        }
     }
+}
+
+@Composable
+fun CreateFolderDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var folderName by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("新建文件夹") },
+        text = {
+            OutlinedTextField(
+                value = folderName,
+                onValueChange = { folderName = it },
+                label = { Text("文件夹名称") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirm(folderName) },
+                enabled = folderName.isNotBlank()
+            ) { Text("确定") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("取消") }
+        }
+    )
 }
 
 @Composable
@@ -227,6 +267,7 @@ fun FileListItem(file: FtpFileUiState, onClick: () -> Unit) {
 @Composable
 fun ControlBar(
     onUploadClick: () -> Unit,
+    onCreateFolderClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -255,7 +296,7 @@ fun ControlBar(
                     modifier = Modifier.size(26.dp)
                 )
             }
-            IconButton(onClick = { /* 弹出输入框新建文件夹 */ }) {
+            IconButton(onClick = { onCreateFolderClick() }) {
                 Icon(
                     imageVector = Icons.Default.CreateNewFolder,
                     contentDescription = "新建文件夹",

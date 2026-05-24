@@ -170,6 +170,15 @@ class FtpClient {
         return@withContext aSocket(selectorManager).tcp().connect(ip, port)
     }
 
+    suspend fun mkdir(path: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isConnected) return@withContext false
+
+        sendCmd("MKD $path")
+        val response = receiveResponse()
+        logger.info(response.message)
+        return@withContext response.code == 257
+    }
+
     suspend fun rename(fromPath: String, toPath: String): Boolean = withContext(Dispatchers.IO) {
         if (!isConnected) return@withContext false
 

@@ -85,6 +85,9 @@ class BrowserViewModel @Inject constructor(
     private val _renameTargetFile = MutableStateFlow<FtpFileItem?>(null)
     val renameTargetFile: StateFlow<FtpFileItem?> = _renameTargetFile.asStateFlow()
 
+    private val _showCreateFolderDialog = MutableStateFlow(false)
+    val showCreateFolderDialog: StateFlow<Boolean> = _showCreateFolderDialog.asStateFlow()
+
     fun onAction(action: String, file: FtpFileUiState?) {
         val rawFileItem = _files.value.find { it.name == file?.name } ?: return
         when (action) {
@@ -117,6 +120,24 @@ class BrowserViewModel @Inject constructor(
             val fromPath = file.fullPath
             val toPath = if (parentPath.endsWith("/")) parentPath + newName else "$parentPath/$newName"
             repository.renameFile(fromPath, toPath)
+            getFiles()
+        }
+    }
+
+    fun onCreateFolderClick() {
+        _showCreateFolderDialog.value = true
+    }
+
+    fun onCreateFolderDismiss() {
+        _showCreateFolderDialog.value = false
+    }
+
+    fun onCreateFolderConfirm(folderName: String) {
+        _showCreateFolderDialog.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            val parentPath = currentPathString.value
+            val fullPath = if (parentPath.endsWith("/")) parentPath + folderName else "$parentPath/$folderName"
+            repository.createFolder(fullPath)
             getFiles()
         }
     }
