@@ -111,8 +111,8 @@ FtpClient/
 
 ```bash
 # 克隆项目
-git clone https://github.com/azc-pkk/Ftp_Client.git
-cd Ftp_Client
+git clone https://github.com/azc-pkk/EazyFTP.git
+cd EazyFTP
 
 # 构建 Debug APK
 ./gradlew :app:assembleDebug
