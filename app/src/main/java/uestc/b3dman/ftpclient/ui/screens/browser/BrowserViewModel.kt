@@ -36,7 +36,6 @@ class BrowserViewModel @Inject constructor(
 
     private val _pathStack = MutableStateFlow(listOf("/"))
     val pathStack = _pathStack.asStateFlow()
-// FIXME
     val currentPathString: StateFlow<String> = _pathStack
         .map { pathList ->
             val filtered = pathList.filter { it != "/" }
@@ -161,9 +160,6 @@ class BrowserViewModel @Inject constructor(
             }
             "Delete" -> {
                 _deleteTargetFile.value = rawFileItem
-            }
-            "Share" -> {
-                // TODO: 分享文件
             }
         }
     }

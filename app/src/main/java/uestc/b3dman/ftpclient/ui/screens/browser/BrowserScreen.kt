@@ -321,7 +321,6 @@ fun FileActionMenu(fileName: String, onActionClick: (String) -> Unit) {
         ActionItem(Icons.Default.Download, "下载", onClick = { onActionClick("Download") })
         ActionItem(Icons.Default.Edit, "重命名", onClick = { onActionClick("Rename") })
         ActionItem(Icons.Default.Delete, "删除", color = Color.Red, onClick = { onActionClick("Delete") })
-        ActionItem(Icons.Default.Share, "分享", onClick = { onActionClick("Share") })
     }
 }
 

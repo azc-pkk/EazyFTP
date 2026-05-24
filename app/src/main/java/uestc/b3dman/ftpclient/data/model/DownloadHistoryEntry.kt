@@ -3,6 +3,12 @@ package uestc.b3dman.ftpclient.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+enum class DownloadStatus {
+    SUCCESS,
+    FAILED,
+    DOWNLOADING
+}
+
 @Entity(tableName = "download_history")
 data class DownloadHistoryEntry(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -12,4 +18,5 @@ data class DownloadHistoryEntry(
     val fileSize: Long,
     val downloadTime: Long,
     val accountId: Int,
+    val status: DownloadStatus,
 )

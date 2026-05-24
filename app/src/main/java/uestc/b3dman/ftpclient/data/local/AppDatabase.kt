@@ -7,7 +7,7 @@ import uestc.b3dman.ftpclient.data.model.DownloadHistoryEntry
 
 @Database(
     entities = [FtpAccount::class, DownloadHistoryEntry::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

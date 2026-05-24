@@ -12,7 +12,7 @@ import uestc.b3dman.ftpclient.data.model.DownloadHistoryEntry
 @Dao
 interface DownloadHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(entry: DownloadHistoryEntry)
+    suspend fun insertEntry(entry: DownloadHistoryEntry): Long
 
     @Query("SELECT * FROM download_history WHERE accountId = :accountId ORDER BY downloadTime DESC")
     fun getHistoryForAccount(accountId: Int): Flow<List<DownloadHistoryEntry>>

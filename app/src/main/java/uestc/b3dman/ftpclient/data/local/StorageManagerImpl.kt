@@ -1,14 +1,15 @@
 package uestc.b3dman.ftpclient.data.local
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.provider.OpenableColumns
+import androidx.core.content.FileProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.io.OutputStream
 import java.util.UUID
 import javax.inject.Inject
 
@@ -57,13 +58,40 @@ class StorageManagerImpl @Inject constructor(
         }
     }
 
-    override fun getDownloadOutputStream(fileName: String): OutputStream? {
-       return try {
-            val file = File(downloadDir, fileName)
-            file.outputStream()
+    override fun createDownloadFile(fileName: String): File? {
+        return try {
+            var file = File(downloadDir, fileName)
+            if (!file.exists()) return file
+
+            val dotIndex = fileName.lastIndexOf('.')
+            val baseName = if (dotIndex == -1) fileName else fileName.substring(0, dotIndex)
+            val extension = if (dotIndex == -1) "" else fileName.substring(dotIndex)
+            var counter = 1
+            while (file.exists()) {
+                file = File(downloadDir, "$baseName ($counter)$extension")
+                counter++
+            }
+            file
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    override fun openFile(localPath: String): Boolean {
+        return try {
+            val file = File(localPath)
+            if (!file.exists()) return false
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, context.contentResolver.getType(uri) ?: "*/*")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(intent)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 

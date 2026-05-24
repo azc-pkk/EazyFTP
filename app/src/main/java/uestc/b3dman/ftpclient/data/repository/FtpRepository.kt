@@ -10,6 +10,7 @@ import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
 import uestc.b3dman.ftpclient.data.model.DownloadHistoryEntry
+import uestc.b3dman.ftpclient.data.model.DownloadStatus
 import uestc.b3dman.ftpclient.data.remote.FtpManager
 import java.io.File
 import javax.inject.Inject
@@ -60,18 +61,27 @@ class FtpRepository @Inject constructor(
         return ftpManager.listFiles(path)
     }
 
-    suspend fun downloadFile(accountId:Int, file: FtpFileItem): Result<Boolean> {
-        val result = ftpManager.downloadFile(file.fullPath, storage.getDownloadOutputStream(file.name))
-        // TODO: 根据结果修改下载历史记录（成功/失败）
-        historyDao.insert(DownloadHistoryEntry(
+    suspend fun downloadFile(accountId: Int, file: FtpFileItem): Result<Boolean> {
+        val localFile = storage.createDownloadFile(file.name)
+            ?: return Result.failure(Exception("Cannot create local file"))
+        val entry = DownloadHistoryEntry(
             fileName = file.name,
             remotePath = file.fullPath,
-            localPath = storage.downloadDir + File.separator + file.name,
+            localPath = localFile.absolutePath,
             fileSize = file.size,
             downloadTime = System.currentTimeMillis(),
-            accountId = accountId
-        ))
-        return if(result) Result.success(true) else Result.failure(Exception("Download failed"))
+            accountId = accountId,
+            status = DownloadStatus.DOWNLOADING,
+        )
+        val entryId = historyDao.insertEntry(entry).toInt()
+        val result = ftpManager.downloadFile(file.fullPath, localFile.outputStream())
+        historyDao.update(
+            entry.copy(
+                id = entryId,
+                status = if (result) DownloadStatus.SUCCESS else DownloadStatus.FAILED
+            )
+        )
+        return if (result) Result.success(true) else Result.failure(Exception("Download failed"))
     }
 
     suspend fun uploadFile(remotePath: String, localUri: Uri): Result<Boolean> {
@@ -94,6 +104,10 @@ class FtpRepository @Inject constructor(
     suspend fun deleteFile(path: String): Result<Boolean> {
         val result = ftpManager.deleteFile(path)
         return if (result) Result.success(true) else Result.failure(Exception("Delete failed"))
+    }
+
+    fun openDownloadedFile(localPath: String): Boolean {
+        return storage.openFile(localPath)
     }
 
     suspend fun logout() {

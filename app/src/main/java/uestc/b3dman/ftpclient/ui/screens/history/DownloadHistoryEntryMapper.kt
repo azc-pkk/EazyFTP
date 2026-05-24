@@ -11,6 +11,8 @@ fun DownloadHistoryEntry.toUiState(): DownloadHistoryEntryUiState {
         localPath = localPath,
         fileSize = Formatter.formatSize(fileSize),
         downloadTime = Formatter.formatDate(downloadTime),
-        accountId = accountId
+        accountId = accountId,
+        status = status,
+        isSuccess = status == uestc.b3dman.ftpclient.data.model.DownloadStatus.SUCCESS,
     )
 }
