@@ -51,28 +51,42 @@ fun BrowserScreen(
         viewModel.accountId = accountId
     }
 
+    val isSearchActive by viewModel.isSearchActive.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+
     BackHandler {
-        viewModel.onBack(onExit)
+        if (isSearchActive) {
+            viewModel.toggleSearch()
+        } else {
+            viewModel.onBack(onExit)
+        }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(currentFolderName, fontSize = 24.sp) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        viewModel.onBack(onExit)
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBackIos, "Back")
+            if (isSearchActive) {
+                SearchBar(
+                    query = searchQuery,
+                    onQueryChange = { viewModel.updateSearchQuery(it) },
+                    onClose = { viewModel.toggleSearch() }
+                )
+            } else {
+                TopAppBar(
+                    title = { Text(currentFolderName, fontSize = 24.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            viewModel.onBack(onExit)
+                        }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBackIos, "Back")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { onNavigateToHistory(accountId) }) { Icon(Icons.Default.Download, "Download History") }
+                        IconButton(onClick = { viewModel.toggleSearch() }) { Icon(Icons.Default.Search, "Search") }
+                        IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, "More") }
                     }
-                },
-                actions = {
-                    IconButton(onClick = { onNavigateToHistory(accountId) }) { Icon(Icons.Default.Download, "Download History") }
-                    // TODO: 搜索和设置
-                    IconButton(onClick = { }) { Icon(Icons.Default.Search, "Search") }
-                    IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, "More") }
-                }
-            )
+                )
+            }
         }
     ) { padding ->
         val currentSortType by viewModel.currentSortType.collectAsState()
@@ -166,6 +180,44 @@ fun CreateFolderDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("取消") }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClose: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                placeholder = { Text("搜索文件名...", color = Color.Gray) },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onClose) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBackIos, contentDescription = "关闭搜索")
+            }
+        },
+        actions = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Clear, contentDescription = "清除")
+                }
+            }
         }
     )
 }

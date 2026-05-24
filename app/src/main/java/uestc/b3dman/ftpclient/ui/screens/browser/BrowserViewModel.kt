@@ -33,6 +33,8 @@ class BrowserViewModel @Inject constructor(
 
     private val _sortType = MutableStateFlow(SortType.NAME)
 
+    private val _searchQuery = MutableStateFlow("")
+
     private val _pathStack = MutableStateFlow(listOf("/"))
     val pathStack = _pathStack.asStateFlow()
 // FIXME
@@ -48,9 +50,16 @@ class BrowserViewModel @Inject constructor(
         )
 
     private val _files = MutableStateFlow<List<FtpFileItem>>(emptyList())
-    val files: StateFlow<List<FtpFileUiState>> = combine(_files, _sortType) { list, sortType ->
-        list.sortedWith(
+    val files: StateFlow<List<FtpFileUiState>> = combine(
+        _files,
+        _sortType,
+        _searchQuery
+    ) { list, sortType, query ->
+        val filtered = if (query.isEmpty()) list
+        else list.filter { it.name.contains(query, ignoreCase = true) }
+        filtered.sortedWith(
             compareByDescending<FtpFileItem> { it.isFolder }
+                .then(compareBy { it.name.lowercase() })
                 .then(
                     when (sortType) {
                         SortType.NAME -> compareBy { 0 }
@@ -58,7 +67,6 @@ class BrowserViewModel @Inject constructor(
                         SortType.TIME -> compareByDescending { it.lastUpdateTime }
                     }
                 )
-                .then(compareBy { it.name.lowercase() })
         ).map { it.toUiState() }
     }.stateIn(
         scope = viewModelScope,
@@ -70,6 +78,20 @@ class BrowserViewModel @Inject constructor(
 
     fun setSortType(sortType: SortType) {
         _sortType.value = sortType
+    }
+    private val _isSearchActive = MutableStateFlow(false)
+    val isSearchActive: StateFlow<Boolean> = _isSearchActive.asStateFlow()
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun toggleSearch() {
+        _isSearchActive.value = !_isSearchActive.value
+        if (!_isSearchActive.value) {
+            _searchQuery.value = ""
+        }
     }
 
     // 路径改变自动调用 getFiles
@@ -96,6 +118,8 @@ class BrowserViewModel @Inject constructor(
 
     fun onEnter(folder: String) {
         _pathStack.value += folder
+        _isSearchActive.value = false
+        _searchQuery.value = ""
     }
 
     fun onBack(onExit: () -> Unit) {
