@@ -38,9 +38,14 @@ fun AddAccountScreen(
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        // 当用户选完图片后，回调会返回图片的 URI
-        viewModel.avatarUri = uri
+        viewModel.updateAvatarUri(uri)
     }
+
+    val ipAndPort by viewModel.ipAndPort.collectAsState()
+    val username by viewModel.username.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val alias by viewModel.alias.collectAsState()
+    val avatarUri by viewModel.avatarUri.collectAsState()
 
     LaunchedEffect(accountId) {
         viewModel.loadAccount(accountId)
@@ -58,7 +63,7 @@ fun AddAccountScreen(
         )
     }
 
-    val fieldColor = Color(0xFFE0E0E0) // 浅灰色输入框背景
+    val fieldColor = Color(0xFFE0E0E0)
 
     Column(
         modifier = Modifier
@@ -69,7 +74,6 @@ fun AddAccountScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        // 1. 顶部返回按钮
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
@@ -85,7 +89,6 @@ fun AddAccountScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 2. 标题
         Text(
             text = "Easy FTP",
             fontSize = 32.sp,
@@ -94,7 +97,6 @@ fun AddAccountScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // 3. 上传头像圆圈
         Box(
             modifier = Modifier
                 .size(140.dp)
@@ -107,13 +109,12 @@ fun AddAccountScreen(
                 .clip(CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            if (viewModel.avatarUri != null) {
-                // 使用 Coil 加载选中的图片
+            if (avatarUri != null) {
                 AsyncImage(
-                    model = viewModel.avatarUri,
+                    model = avatarUri,
                     contentDescription = "Avatar",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop // 填满圆圈
+                    contentScale = ContentScale.Crop
                 )
             } else {
                 Text(text = "上传头像", color = Color.Black, fontSize = 16.sp)
@@ -122,21 +123,19 @@ fun AddAccountScreen(
 
         Spacer(modifier = Modifier.height(50.dp))
 
-        // 4. 输入框表单
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            CustomInputField(value = viewModel.ipAndPort, onValueChange = {viewModel.ipAndPort = it}, placeholder = "服务端 IP ( 端口默认为21 )")
-            CustomInputField(value = viewModel.username, onValueChange = { viewModel.username = it }, placeholder = "用户名 ( 匿名登录不填 )")
-            CustomInputField(value = viewModel.password, onValueChange = { viewModel.password = it }, placeholder = "密码 ( 可为空 )")
-            CustomInputField(value = viewModel.alias, onValueChange = { viewModel.alias = it }, placeholder = "服务器备注 ( 可不填 )", imeAction = ImeAction.Done)
+            CustomInputField(value = ipAndPort, onValueChange = { viewModel.updateIpAndPort(it) }, placeholder = "服务端 IP ( 端口默认为21 )")
+            CustomInputField(value = username, onValueChange = { viewModel.updateUsername(it) }, placeholder = "用户名 ( 匿名登录不填 )")
+            CustomInputField(value = password, onValueChange = { viewModel.updatePassword(it) }, placeholder = "密码 ( 可为空 )")
+            CustomInputField(value = alias, onValueChange = { viewModel.updateAlias(it) }, placeholder = "服务器备注 ( 可不填 )", imeAction = ImeAction.Done)
         }
 
         Spacer(modifier = Modifier.height(30.dp))
 
-        // 5. 确认按钮
         Button(
             onClick = {
                 viewModel.addAccount(

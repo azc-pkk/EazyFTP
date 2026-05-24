@@ -22,12 +22,6 @@ class BrowserViewModel @Inject constructor(
     private val repository: FtpRepository
 ) : ViewModel() {
 
-    enum class SortType(val displayName: String) {
-        NAME("按名称"),
-        SIZE("按大小"),
-        TIME("按时间")
-    }
-
     var accountId: Int = -1
 
     private val _sortType = MutableStateFlow(SortType.NAME)
@@ -146,19 +140,19 @@ class BrowserViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun onAction(action: String, file: FtpFileUiState?) {
+    fun onAction(action: FileAction, file: FtpFileUiState?) {
         val rawFileItem = _files.value.find { it.fullPath == file?.fullPath } ?: return
         when (action) {
-            "Download" -> {
+            FileAction.DOWNLOAD -> {
                 viewModelScope.launch {
                     val result = repository.downloadFile(accountId, rawFileItem)
                     if (result.isFailure) _errorMessage.value = "下载失败"
                 }
             }
-            "Rename" -> {
+            FileAction.RENAME -> {
                 _renameTargetFile.value = rawFileItem
             }
-            "Delete" -> {
+            FileAction.DELETE -> {
                 _deleteTargetFile.value = rawFileItem
             }
         }

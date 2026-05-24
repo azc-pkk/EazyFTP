@@ -12,7 +12,6 @@ import uestc.b3dman.ftpclient.data.local.DownloadHistoryDao
 import uestc.b3dman.ftpclient.data.local.FtpAccountDao
 import uestc.b3dman.ftpclient.data.local.StorageManager
 import uestc.b3dman.ftpclient.data.local.StorageManagerImpl
-import uestc.b3dman.ftpclient.data.remote.ApacheFtpManager
 import uestc.b3dman.ftpclient.data.remote.CustomFtpManager
 import uestc.b3dman.ftpclient.data.remote.FtpManager
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
@@ -32,18 +31,19 @@ object AppModule {
     }
 
     @Provides
+    @Singleton
     fun provideFtpAccountDao(db: AppDatabase): FtpAccountDao {
         return db.ftpAccountDao()
     }
 
     @Provides
+    @Singleton
     fun provideDownloadHistoryDao(db: AppDatabase): DownloadHistoryDao {
         return db.downloadHistoryDao()
     }
 
     @Provides
     @Singleton
-//    fun provideFtpManager(): FtpManager = ApacheFtpManager()
     fun provideFtpManager(): FtpManager = CustomFtpManager()
 
     @Provides

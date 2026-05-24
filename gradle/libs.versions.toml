@@ -24,6 +24,8 @@ commons-net = "3.13.0"
 jetbrainsKotlinJvm = "2.3.10"
 ktor = "3.5.0"
 kotlinxCoroutines = "1.11.0"
+mockk = "1.13.12"
+coreTesting = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -63,6 +65,8 @@ apache-commons-net = { group = "commons-net", name = "commons-net", version.ref 
 # kotlin
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
 ktor-network = { group = "io.ktor", name = "ktor-network", version.ref = "ktor" }
 
 [plugins]

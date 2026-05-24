@@ -93,7 +93,6 @@ fun BrowserScreen(
                     actions = {
                         IconButton(onClick = { onNavigateToHistory(accountId) }) { Icon(Icons.Default.Download, "Download History") }
                         IconButton(onClick = { viewModel.toggleSearch() }) { Icon(Icons.Default.Search, "Search") }
-                        IconButton(onClick = { }) { Icon(Icons.Default.MoreVert, "More") }
                     }
                 )
             }
@@ -305,7 +304,7 @@ fun RenameDialog(
 }
 
 @Composable
-fun FileActionMenu(fileName: String, onActionClick: (String) -> Unit) {
+fun FileActionMenu(fileName: String, onActionClick: (FileAction) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -318,9 +317,9 @@ fun FileActionMenu(fileName: String, onActionClick: (String) -> Unit) {
             color = Color.Gray
         )
 
-        ActionItem(Icons.Default.Download, "下载", onClick = { onActionClick("Download") })
-        ActionItem(Icons.Default.Edit, "重命名", onClick = { onActionClick("Rename") })
-        ActionItem(Icons.Default.Delete, "删除", color = Color.Red, onClick = { onActionClick("Delete") })
+        ActionItem(Icons.Default.Download, "下载", onClick = { onActionClick(FileAction.DOWNLOAD) })
+        ActionItem(Icons.Default.Edit, "重命名", onClick = { onActionClick(FileAction.RENAME) })
+        ActionItem(Icons.Default.Delete, "删除", color = Color.Red, onClick = { onActionClick(FileAction.DELETE) })
     }
 }
 
@@ -370,8 +369,8 @@ fun FileListItem(file: FtpFileUiState, onClick: () -> Unit) {
 
 @Composable
 fun ControlBar(
-    currentSortType: BrowserViewModel.SortType,
-    onSortTypeChange: (BrowserViewModel.SortType) -> Unit,
+    currentSortType: SortType,
+    onSortTypeChange: (SortType) -> Unit,
     onUploadClick: () -> Unit,
     onCreateFolderClick: () -> Unit,
 ) {
@@ -400,7 +399,7 @@ fun ControlBar(
                 expanded = showSortMenu,
                 onDismissRequest = { showSortMenu = false }
             ) {
-                BrowserViewModel.SortType.entries.forEach { sortType ->
+                SortType.entries.forEach { sortType ->
                     DropdownMenuItem(
                         text = { Text(sortType.displayName) },
                         onClick = {

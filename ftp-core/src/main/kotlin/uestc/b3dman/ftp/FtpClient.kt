@@ -34,7 +34,7 @@ class FtpClient {
     private var controlReader: ByteReadChannel? = null
     private var controlWriter: ByteWriteChannel? = null
 
-    var isConnected = false
+    private var isConnected = false
 
     suspend fun connect(host: String, port: Int) = withContext(Dispatchers.IO) {
         controlSocket = aSocket(selectorManager)

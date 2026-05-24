@@ -3,6 +3,7 @@ package uestc.b3dman.ftpclient.ui.screens.login
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -76,7 +77,6 @@ fun LoginScreen(
             text = "Easy FTP",
             fontSize = 32.sp,
             fontWeight = FontWeight.Medium,
-//            modifier = Modifier.clickable { hasHistory = !hasHistory } // 点击切换状态演示
         )
 
         Spacer(modifier = Modifier.weight(0.4f))
@@ -189,8 +189,7 @@ fun AccountListSheetContent(
 
         // 使用 LazyColumn 渲染列表
         androidx.compose.foundation.lazy.LazyColumn {
-            items(accounts.size) { index ->
-                val account = accounts[index]
+            itemsIndexed(accounts) { index, account ->
                 AccountItem(
                     account = account,
                     onClick = { onAccountSelected(account) },
