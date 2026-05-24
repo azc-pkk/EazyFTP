@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,7 +23,15 @@ class BrowserViewModel @Inject constructor(
     private val repository: FtpRepository
 ) : ViewModel() {
 
+    enum class SortType(val displayName: String) {
+        NAME("按名称"),
+        SIZE("按大小"),
+        TIME("按时间")
+    }
+
     var accountId: Int = -1
+
+    private val _sortType = MutableStateFlow(SortType.NAME)
 
     private val _pathStack = MutableStateFlow(listOf("/"))
     val pathStack = _pathStack.asStateFlow()
@@ -39,13 +48,29 @@ class BrowserViewModel @Inject constructor(
         )
 
     private val _files = MutableStateFlow<List<FtpFileItem>>(emptyList())
-    val files: StateFlow<List<FtpFileUiState>> = _files.map { list ->
-        list.map { it.toUiState() }
+    val files: StateFlow<List<FtpFileUiState>> = combine(_files, _sortType) { list, sortType ->
+        list.sortedWith(
+            compareByDescending<FtpFileItem> { it.isFolder }
+                .then(
+                    when (sortType) {
+                        SortType.NAME -> compareBy { 0 }
+                        SortType.SIZE -> compareByDescending { it.size }
+                        SortType.TIME -> compareByDescending { it.lastUpdateTime }
+                    }
+                )
+                .then(compareBy { it.name.lowercase() })
+        ).map { it.toUiState() }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    val currentSortType: StateFlow<SortType> = _sortType.asStateFlow()
+
+    fun setSortType(sortType: SortType) {
+        _sortType.value = sortType
+    }
 
     // 路径改变自动调用 getFiles
     init {

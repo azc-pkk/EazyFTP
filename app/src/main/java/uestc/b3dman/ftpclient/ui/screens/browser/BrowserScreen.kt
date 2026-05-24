@@ -75,8 +75,12 @@ fun BrowserScreen(
             )
         }
     ) { padding ->
+        val currentSortType by viewModel.currentSortType.collectAsState()
+
         Column(modifier = Modifier.padding(padding).fillMaxSize().background(Color.White)) {
             ControlBar(
+                currentSortType = currentSortType,
+                onSortTypeChange = { viewModel.setSortType(it) },
                 onUploadClick = { pickFileLauncher.launch("*/*") },
                 onCreateFolderClick = { viewModel.onCreateFolderClick() }
             )
@@ -266,9 +270,13 @@ fun FileListItem(file: FtpFileUiState, onClick: () -> Unit) {
 
 @Composable
 fun ControlBar(
+    currentSortType: BrowserViewModel.SortType,
+    onSortTypeChange: (BrowserViewModel.SortType) -> Unit,
     onUploadClick: () -> Unit,
     onCreateFolderClick: () -> Unit,
 ) {
+    var showSortMenu by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -276,16 +284,37 @@ fun ControlBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { /* 弹出排序选择菜单 */ }
-        ) {
-            Text(text = "按名称", fontSize = 16.sp, color = Color.Black)
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { showSortMenu = true }
+            ) {
+                Text(text = currentSortType.displayName, fontSize = 16.sp, color = Color.Black)
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            DropdownMenu(
+                expanded = showSortMenu,
+                onDismissRequest = { showSortMenu = false }
+            ) {
+                BrowserViewModel.SortType.entries.forEach { sortType ->
+                    DropdownMenuItem(
+                        text = { Text(sortType.displayName) },
+                        onClick = {
+                            onSortTypeChange(sortType)
+                            showSortMenu = false
+                        },
+                        leadingIcon = {
+                            if (sortType == currentSortType) {
+                                Icon(Icons.Default.Check, contentDescription = null)
+                            }
+                        }
+                    )
+                }
+            }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
