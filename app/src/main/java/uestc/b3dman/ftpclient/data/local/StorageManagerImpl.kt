@@ -24,7 +24,6 @@ class StorageManagerImpl @Inject constructor(
         dir.absolutePath
     }
 
-    // FIXME: 头像相同会多次保存。
     override suspend fun saveAvatar(uri: Uri): String? {
         return try {
             val contentResolver = context.contentResolver
@@ -75,6 +74,15 @@ class StorageManagerImpl @Inject constructor(
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    override fun deleteFile(path: String) {
+        try {
+            val file = File(path)
+            if (file.exists()) file.delete()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

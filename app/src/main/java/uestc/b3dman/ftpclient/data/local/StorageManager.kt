@@ -8,6 +8,7 @@ interface StorageManager {
     val downloadDir: String
     suspend fun saveAvatar(uri: Uri): String?
     fun createDownloadFile(fileName: String): File?
+    fun deleteFile(path: String)
     fun openFile(localPath: String): Boolean
     fun getInputStream(uri: Uri): InputStream?
     fun getFileName(uri: Uri): String?

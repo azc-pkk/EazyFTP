@@ -38,11 +38,15 @@ class FtpRepository @Inject constructor(
     }
 
     suspend fun deleteAccount(account: FtpAccount) {
+        account.avatarPath?.let { storage.deleteFile(it) }
         accountDao.deleteAccount(account)
     }
 
     suspend fun updateAccountWithAvatar(account: FtpAccount, uri: Uri?) =
         withContext(Dispatchers.IO) {
+            if (uri != null) {
+                account.avatarPath?.let { storage.deleteFile(it) }
+            }
             val avatarPath = uri?.let { storage.saveAvatar(it) }
             accountDao.updateAccount(account.copy(avatarPath = avatarPath))
         }
