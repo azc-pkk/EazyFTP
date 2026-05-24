@@ -35,7 +35,6 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
-    // TODO: 正在登录提示
     val isLoggingIn by viewModel.isLoggingIn.collectAsState()
     val loginResult by viewModel.loginResult.collectAsState()
     val recentAccount = accounts.maxByOrNull { it.lastLoginTime }
@@ -90,6 +89,7 @@ fun LoginScreen(
             // 将 accounts 按 lastLoginTime 排序，取最近登录的一个账号展示
             LoginContentWithHistory(
                 account = recentAccount,
+                isLoggingIn = isLoggingIn,
                 onLogin = { viewModel.performLogin(recentAccount) },
             )
         }
@@ -284,6 +284,7 @@ fun LoginContentEmpty(onAddAccount: () -> Unit) {
 @Composable
 fun LoginContentWithHistory(
     account: FtpAccount,
+    isLoggingIn: Boolean,
     onLogin: () -> Unit
 ) {
     val userAlias = account.userName + '@' + account.alias
@@ -325,16 +326,25 @@ fun LoginContentWithHistory(
 
 
         Button(
-            onClick = {
-                onLogin()
-            },
+            onClick = onLogin,
+            enabled = !isLoggingIn,
             modifier = Modifier
                 .width(240.dp)
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38B4FF)),
             shape = RoundedCornerShape(8.dp)
         ) {
-            Text(text = "一键登录", color = Color.White, fontSize = 18.sp)
+            if (isLoggingIn) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "登录中...", color = Color.White, fontSize = 18.sp)
+            } else {
+                Text(text = "一键登录", color = Color.White, fontSize = 18.sp)
+            }
         }
     }
 }

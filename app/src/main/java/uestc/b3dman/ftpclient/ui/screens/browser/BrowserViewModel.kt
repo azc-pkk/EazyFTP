@@ -111,15 +111,18 @@ class BrowserViewModel @Inject constructor(
 
     fun uploadFile(uri: Uri) {
         viewModelScope.launch {
-            repository.uploadFile(currentPathString.value, uri)
-            getFiles()
+            val result = repository.uploadFile(currentPathString.value, uri)
+            if (result.isSuccess) getFiles()
+            else _errorMessage.value = "上传失败"
         }
     }
 
     fun onEnter(folder: String) {
         _pathStack.value += folder
-        _isSearchActive.value = false
-        _searchQuery.value = ""
+        if (_isSearchActive.value) {
+            _isSearchActive.value = false
+            _searchQuery.value = ""
+        }
     }
 
     fun onBack(onExit: () -> Unit) {
@@ -137,12 +140,20 @@ class BrowserViewModel @Inject constructor(
     private val _showCreateFolderDialog = MutableStateFlow(false)
     val showCreateFolderDialog: StateFlow<Boolean> = _showCreateFolderDialog.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
     fun onAction(action: String, file: FtpFileUiState?) {
         val rawFileItem = _files.value.find { it.fullPath == file?.fullPath } ?: return
         when (action) {
             "Download" -> {
                 viewModelScope.launch {
-                    repository.downloadFile(accountId, rawFileItem)
+                    val result = repository.downloadFile(accountId, rawFileItem)
+                    if (result.isFailure) _errorMessage.value = "下载失败"
                 }
             }
             "Rename" -> {
@@ -168,8 +179,9 @@ class BrowserViewModel @Inject constructor(
             val parentPath = currentPathString.value
             val fromPath = file.fullPath
             val toPath = if (parentPath.endsWith("/")) parentPath + newName else "$parentPath/$newName"
-            repository.renameFile(fromPath, toPath)
-            getFiles()
+            val result = repository.renameFile(fromPath, toPath)
+            if (result.isSuccess) getFiles()
+            else _errorMessage.value = "重命名失败"
         }
     }
 
@@ -184,8 +196,9 @@ class BrowserViewModel @Inject constructor(
         val file = _deleteTargetFile.value ?: return
         _deleteTargetFile.value = null
         viewModelScope.launch {
-            repository.deleteFile(file.fullPath)
-            getFiles()
+            val result = repository.deleteFile(file.fullPath)
+            if (result.isSuccess) getFiles()
+            else _errorMessage.value = "删除失败"
         }
     }
 
@@ -202,8 +215,9 @@ class BrowserViewModel @Inject constructor(
         viewModelScope.launch {
             val parentPath = currentPathString.value
             val fullPath = if (parentPath.endsWith("/")) parentPath + folderName else "$parentPath/$folderName"
-            repository.createFolder(fullPath)
-            getFiles()
+            val result = repository.createFolder(fullPath)
+            if (result.isSuccess) getFiles()
+            else _errorMessage.value = "新建文件夹失败"
         }
     }
 }

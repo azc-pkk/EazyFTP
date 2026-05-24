@@ -51,6 +51,15 @@ fun BrowserScreen(
         viewModel.accountId = accountId
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
+        }
+    }
+
     val isSearchActive by viewModel.isSearchActive.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
 
@@ -63,6 +72,7 @@ fun BrowserScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             if (isSearchActive) {
                 SearchBar(
@@ -99,20 +109,29 @@ fun BrowserScreen(
                 onCreateFolderClick = { viewModel.onCreateFolderClick() }
             )
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(fileList) { file ->
-                    FileListItem(
-                        file = file,
-                        onClick = {
-                            if (file.isFolder) {
-                                viewModel.onEnter(file.name)
-                            } else {
-                                selectedFile = file
-                                showSheet = true
+            if (fileList.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "空文件夹", fontSize = 16.sp, color = Color.Gray)
+                }
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(fileList) { file ->
+                        FileListItem(
+                            file = file,
+                            onClick = {
+                                if (file.isFolder) {
+                                    viewModel.onEnter(file.name)
+                                } else {
+                                    selectedFile = file
+                                    showSheet = true
+                                }
                             }
-                        }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(start = 72.dp), thickness = 0.5.dp)
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(start = 72.dp), thickness = 0.5.dp)
+                    }
                 }
             }
         }
