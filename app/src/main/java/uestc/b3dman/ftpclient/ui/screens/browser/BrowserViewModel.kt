@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -113,6 +112,7 @@ class BrowserViewModel @Inject constructor(
     fun uploadFile(uri: Uri) {
         viewModelScope.launch {
             repository.uploadFile(currentPathString.value, uri)
+            getFiles()
         }
     }
 
@@ -138,10 +138,10 @@ class BrowserViewModel @Inject constructor(
     val showCreateFolderDialog: StateFlow<Boolean> = _showCreateFolderDialog.asStateFlow()
 
     fun onAction(action: String, file: FtpFileUiState?) {
-        val rawFileItem = _files.value.find { it.name == file?.name } ?: return
+        val rawFileItem = _files.value.find { it.fullPath == file?.fullPath } ?: return
         when (action) {
             "Download" -> {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
                     repository.downloadFile(accountId, rawFileItem)
                 }
             }
@@ -164,7 +164,7 @@ class BrowserViewModel @Inject constructor(
     fun onRenameConfirm(newName: String) {
         val file = _renameTargetFile.value ?: return
         _renameTargetFile.value = null
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val parentPath = currentPathString.value
             val fromPath = file.fullPath
             val toPath = if (parentPath.endsWith("/")) parentPath + newName else "$parentPath/$newName"
@@ -183,7 +183,7 @@ class BrowserViewModel @Inject constructor(
 
     fun onCreateFolderConfirm(folderName: String) {
         _showCreateFolderDialog.value = false
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val parentPath = currentPathString.value
             val fullPath = if (parentPath.endsWith("/")) parentPath + folderName else "$parentPath/$folderName"
             repository.createFolder(fullPath)

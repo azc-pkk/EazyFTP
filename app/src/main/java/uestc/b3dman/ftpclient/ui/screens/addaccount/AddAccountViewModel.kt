@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +12,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.launch
 import uestc.b3dman.ftpclient.data.model.FtpAccount
 import uestc.b3dman.ftpclient.data.repository.FtpRepository
-import androidx.core.net.toUri
+import java.io.File
 
 @HiltViewModel
 class AddAccountViewModel @Inject constructor(
@@ -37,7 +38,7 @@ class AddAccountViewModel @Inject constructor(
                 username = account.userName
                 password = account.password
                 alias = account.alias
-                avatarUri = account.avatarPath?.toUri()
+                avatarUri = account.avatarPath?.let { File(it).toUri() }
             }
         }
     }

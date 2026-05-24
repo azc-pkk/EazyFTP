@@ -34,7 +34,17 @@ class StorageManagerImpl @Inject constructor(
             if (!avatarDir.exists()) {
                 avatarDir.mkdirs()
             }
-            val fileName = "avatar_${UUID.randomUUID()}.jpg"
+            val extension = contentResolver.getType(uri)?.let { mimeType ->
+                when {
+                    mimeType.contains("png", ignoreCase = true) -> ".png"
+                    mimeType.contains("jpeg", ignoreCase = true) || mimeType.contains("jpg", ignoreCase = true) -> ".jpg"
+                    mimeType.contains("webp", ignoreCase = true) -> ".webp"
+                    mimeType.contains("gif", ignoreCase = true) -> ".gif"
+                    mimeType.contains("bmp", ignoreCase = true) -> ".bmp"
+                    else -> ".jpg"
+                }
+            } ?: ".jpg"
+            val fileName = "avatar_${UUID.randomUUID()}$extension"
             val avatarFile = File(avatarDir, fileName)
 
             contentResolver.openInputStream(uri)?.use { inputStream ->
@@ -84,7 +94,6 @@ class StorageManagerImpl @Inject constructor(
                 }
             }
         }
-        cursor?.close()
         return fileName
     }
 }

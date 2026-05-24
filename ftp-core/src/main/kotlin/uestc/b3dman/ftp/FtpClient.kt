@@ -135,10 +135,12 @@ class FtpClient {
                     return@withContext false
                 }
 
-                val writeChannel = dataSocket.openWriteChannel()
-                val fileReadChannel = inputStream.toByteReadChannel(context = Dispatchers.IO)
-                fileReadChannel.copyTo(writeChannel)
-                writeChannel.flushAndClose()
+                dataSocket.use { socket ->
+                    val readChannel = inputStream.toByteReadChannel(context = Dispatchers.IO)
+                    val writeChannel = socket.openWriteChannel()
+                    readChannel.copyTo(writeChannel)
+                    writeChannel.flushAndClose()
+                }
 
                 val finalResponse = receiveResponse()
                 logger.info(finalResponse.message)
@@ -264,9 +266,9 @@ class FtpClient {
             val formatter = java.time.format.DateTimeFormatter
                 .ofPattern("yyyy MMM d HH:mm")
                 .withLocale(java.util.Locale.ENGLISH)
-            val dateTime = java.time.LocalDateTime.parse("${now.year} $month $day $timeOrYear", formatter)
+            var dateTime = java.time.LocalDateTime.parse("${now.year} $month $day $timeOrYear", formatter)
             if (dateTime.isAfter(now)) {
-                dateTime.minusYears(1)
+                dateTime = dateTime.minusYears(1)
             }
             return dateTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
         } else {

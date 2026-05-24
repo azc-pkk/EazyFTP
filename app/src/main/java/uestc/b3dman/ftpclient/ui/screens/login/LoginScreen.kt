@@ -37,6 +37,8 @@ fun LoginScreen(
     val accounts by viewModel.accounts.collectAsState(initial = emptyList())
     // TODO: 正在登录提示
     val isLoggingIn by viewModel.isLoggingIn.collectAsState()
+    val loginResult by viewModel.loginResult.collectAsState()
+    val recentAccount = accounts.maxByOrNull { it.lastLoginTime }
 
     // 控制底部弹窗显示
     var showSheet by remember { mutableStateOf(false) }
@@ -46,7 +48,21 @@ fun LoginScreen(
     var accountToDelete by remember { mutableStateOf<FtpAccount?>(null) }
 
     // 登录失败
-    var loginFiled by remember { mutableStateOf(false) }
+    var loginFailed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(loginResult) {
+        when (loginResult) {
+            is LoginResult.Success -> {
+                viewModel.clearLoginResult()
+                recentAccount?.let { onNavigateToBrowser(it.id) }
+            }
+            is LoginResult.Failed -> {
+                viewModel.clearLoginResult()
+                loginFailed = true
+            }
+            null -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -66,7 +82,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.weight(0.4f))
 
-        val recentAccount = accounts.maxByOrNull { it.lastLoginTime }
         if (recentAccount == null) {
             // --- 情况 1: 展现 1.png 的内容 ---
             LoginContentEmpty(onAddAccount = onNavigateToAddAccount)
@@ -75,13 +90,7 @@ fun LoginScreen(
             // 将 accounts 按 lastLoginTime 排序，取最近登录的一个账号展示
             LoginContentWithHistory(
                 account = recentAccount,
-                onLogin = {
-                    viewModel.performLogin(
-                        recentAccount,
-                        onSuccess = { onNavigateToBrowser(recentAccount.id) },
-                        onFailed = { loginFiled = true }
-                    )
-                },
+                onLogin = { viewModel.performLogin(recentAccount) },
             )
         }
 
@@ -146,13 +155,13 @@ fun LoginScreen(
             )
         }
 
-        if (loginFiled) {
+        if (loginFailed) {
             AlertDialog(
-                onDismissRequest = { loginFiled = false },
+                onDismissRequest = { loginFailed = false },
                 title = { Text("登录失败") },
                 text = { Text("登录失败，请检查账号信息") },
                 confirmButton = {
-                    TextButton(onClick = { loginFiled = false }) { Text("确定") }
+                    TextButton(onClick = { loginFailed = false }) { Text("确定") }
                 }
             )
         }

@@ -11,7 +11,7 @@ import kotlin.comparisons.thenBy
 
 @Singleton
 class CustomFtpManager @Inject constructor(): FtpManager {
-    val ftpClient = FtpClient()
+    private val ftpClient = FtpClient()
     override suspend fun connect(
         ip: String,
         port: Int,
