@@ -51,7 +51,6 @@ class BrowserViewModel @Inject constructor(
         else list.filter { it.name.contains(query, ignoreCase = true) }
         filtered.sortedWith(
             compareByDescending<FtpFileItem> { it.isFolder }
-                .then(compareBy { it.name.lowercase() })
                 .then(
                     when (sortType) {
                         SortType.NAME -> compareBy { 0 }
@@ -59,6 +58,7 @@ class BrowserViewModel @Inject constructor(
                         SortType.TIME -> compareByDescending { it.lastUpdateTime }
                     }
                 )
+                .then(compareBy { it.name.lowercase() })
         ).map { it.toUiState() }
     }.stateIn(
         scope = viewModelScope,
