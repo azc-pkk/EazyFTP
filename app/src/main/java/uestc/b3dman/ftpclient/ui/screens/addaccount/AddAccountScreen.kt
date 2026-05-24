@@ -46,6 +46,18 @@ fun AddAccountScreen(
         viewModel.loadAccount(accountId)
     }
 
+    val validationError by viewModel.validationError.collectAsState()
+    if (validationError != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearValidationError() },
+            title = { Text("输入错误") },
+            text = { Text(validationError!!) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearValidationError() }) { Text("确定") }
+            }
+        )
+    }
+
     val fieldColor = Color(0xFFE0E0E0) // 浅灰色输入框背景
 
     Column(
