@@ -91,6 +91,11 @@ class FtpRepository @Inject constructor(
         return if (result) Result.success(true) else Result.failure(Exception("Create folder failed"))
     }
 
+    suspend fun deleteFile(path: String): Result<Boolean> {
+        val result = ftpManager.deleteFile(path)
+        return if (result) Result.success(true) else Result.failure(Exception("Delete failed"))
+    }
+
     suspend fun logout() {
         ftpManager.disconnect()
     }

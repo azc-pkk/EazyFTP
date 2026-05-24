@@ -43,6 +43,10 @@ class CustomFtpManager @Inject constructor(): FtpManager {
         return ftpClient.mkdir(path)
     }
 
+    override suspend fun deleteFile(path: String): Boolean {
+        return ftpClient.deleteFile(path)
+    }
+
     override suspend fun downloadFile(
         remotePath: String,
         outputStream: OutputStream?

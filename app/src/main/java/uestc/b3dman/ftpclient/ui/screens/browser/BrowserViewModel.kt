@@ -149,7 +149,7 @@ class BrowserViewModel @Inject constructor(
                 _renameTargetFile.value = rawFileItem
             }
             "Delete" -> {
-                // TODO: 删除文件
+                _deleteTargetFile.value = rawFileItem
             }
             "Share" -> {
                 // TODO: 分享文件
@@ -169,6 +169,22 @@ class BrowserViewModel @Inject constructor(
             val fromPath = file.fullPath
             val toPath = if (parentPath.endsWith("/")) parentPath + newName else "$parentPath/$newName"
             repository.renameFile(fromPath, toPath)
+            getFiles()
+        }
+    }
+
+    private val _deleteTargetFile = MutableStateFlow<FtpFileItem?>(null)
+    val deleteTargetFile: StateFlow<FtpFileItem?> = _deleteTargetFile.asStateFlow()
+
+    fun onDeleteDismiss() {
+        _deleteTargetFile.value = null
+    }
+
+    fun onDeleteConfirm() {
+        val file = _deleteTargetFile.value ?: return
+        _deleteTargetFile.value = null
+        viewModelScope.launch {
+            repository.deleteFile(file.fullPath)
             getFiles()
         }
     }

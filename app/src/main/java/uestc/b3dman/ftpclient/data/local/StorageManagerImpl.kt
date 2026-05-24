@@ -15,15 +15,12 @@ import javax.inject.Inject
 class StorageManagerImpl @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) : StorageManager {
-    override var downloadDir: String = ""
-
-    init {
-        // 初始化下载目录
+    override val downloadDir: String = run {
         val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "FTPClient")
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        this.downloadDir = dir.absolutePath
+        dir.absolutePath
     }
 
     // FIXME: 头像相同会多次保存。

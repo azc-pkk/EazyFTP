@@ -150,6 +150,15 @@ fun BrowserScreen(
                 onDismiss = { viewModel.onCreateFolderDismiss() }
             )
         }
+
+        val deleteFile by viewModel.deleteTargetFile.collectAsState()
+        if (deleteFile != null) {
+            DeleteConfirmDialog(
+                fileName = deleteFile!!.name,
+                onConfirm = { viewModel.onDeleteConfirm() },
+                onDismiss = { viewModel.onDeleteDismiss() }
+            )
+        }
     }
 }
 
@@ -218,6 +227,27 @@ fun SearchBar(
                     Icon(Icons.Default.Clear, contentDescription = "清除")
                 }
             }
+        }
+    )
+}
+
+@Composable
+fun DeleteConfirmDialog(
+    fileName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("确认删除") },
+        text = { Text("确定要删除 $fileName 吗？此操作不可撤销。") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("删除", color = Color.Red)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("取消") }
         }
     )
 }

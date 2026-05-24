@@ -172,6 +172,15 @@ class FtpClient {
         return@withContext aSocket(selectorManager).tcp().connect(ip, port)
     }
 
+    suspend fun deleteFile(path: String): Boolean = withContext(Dispatchers.IO) {
+        if (!isConnected) return@withContext false
+
+        sendCmd("DELE $path")
+        val response = receiveResponse()
+        logger.info(response.message)
+        return@withContext response.code == 250
+    }
+
     suspend fun mkdir(path: String): Boolean = withContext(Dispatchers.IO) {
         if (!isConnected) return@withContext false
 

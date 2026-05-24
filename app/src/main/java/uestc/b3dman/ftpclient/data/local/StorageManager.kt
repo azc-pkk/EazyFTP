@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 interface StorageManager {
-    var downloadDir: String
+    val downloadDir: String
     suspend fun saveAvatar(uri: Uri): String?
     fun getDownloadOutputStream(fileName: String): OutputStream?
     fun getInputStream(uri: Uri): InputStream?

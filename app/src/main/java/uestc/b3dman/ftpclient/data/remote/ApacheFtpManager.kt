@@ -76,6 +76,16 @@ class ApacheFtpManager @Inject constructor() : FtpManager{
             }
         }
 
+    override suspend fun deleteFile(path: String): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                ftpClient.deleteFile(path)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+
     override suspend fun downloadFile(remotePath: String, outputStream: OutputStream?): Boolean =
         withContext(Dispatchers.IO) {
             if (outputStream == null) return@withContext false
